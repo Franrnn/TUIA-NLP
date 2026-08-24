@@ -1,0 +1,45 @@
+﻿# Entorno virtual
+.venv-NLP/
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+
+# Modelos y embeddings (demasiado pesados para Git)
+*.bin
+*.pt
+*.pth
+*.h5
+*.safetensors
+models/
+embeddings/
+
+# Datasets grandes
+data/raw/
+*.parquet
+*.csv.gz
+
+# Cache de librerias
+.cache/
+nltk_data/
+
+# Credenciales
+.env
+*.key
+
+# Salidas
+output/
+resultados/
+
+# Windows
+Thumbs.db
+desktop.ini
