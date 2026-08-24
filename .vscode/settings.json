@@ -1,5 +1,4 @@
-﻿{
-  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv-NLP\\Scripts\\python.exe",
+{
   "python.terminal.activateEnvironment": true,
   "jupyter.interactiveWindow.textEditor.executeSelection": true,
   "python.REPL.enableREPLSmartSend": true
