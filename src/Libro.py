@@ -17,5 +17,5 @@ class Libro:
         self.sinopsis = sinopsis
         self.url = url
         self.categoria = categoria
-        self.fechaExtraccion = fechaExtraccion,
+        self.fechaExtraccion = fechaExtraccion
         self.imgPortada = imgPortada
