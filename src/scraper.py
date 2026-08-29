@@ -26,12 +26,32 @@ with sync_playwright() as p:
     page.goto(f"{urlBase}{urlGenero}")
     listaUrlsLibros = ObtenerUrlsLibros(page)
     rng = random.Random(42)
-    for x in range(1, cantidadLibrosScraper):
+    for x in range(0, cantidadLibrosScraper):
         indice = rng.randrange(len(listaUrlsLibros))
         urlLibroParaScrapear = listaUrlsLibros.pop(indice)
         urlCompletaDelLibro = f"{urlBase}{urlLibroParaScrapear}"
         page.goto(urlCompletaDelLibro)
         htmlLibroParaScraper = BeautifulSoup(page.content(), "html.parser")
+        libro = Libro()
+        titulo = htmlLibroParaScraper.select_one("#title > h1").text
+        libro.setTitulo(titulo)
+        autor = htmlLibroParaScraper.select_one("#autor > a").text
+        libro.setAutor(autor)
+        generos = htmlLibroParaScraper.select('#genero > a')
+        for g in generos:
+            libro.agregarGenero(g.text)
+        serie = htmlLibroParaScraper.select_one("#serie > a")
+        if serie:
+            libro.setSerie(serie.text)
+        sinopsis = htmlLibroParaScraper.select_one('#sinopsis > span').text
+        libro.setSinopsis(sinopsis)
+        print(libro)
+
+        #url
+        #categoria
+        #fechaExtraccion
+        #imgPortada
+        
 
 
 

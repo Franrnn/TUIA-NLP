@@ -1,93 +1,82 @@
 class Libro:
-    def __init__(self,
-                 titulo: str,
-                 autor: str,
-                 generos: list[str],
-                 serie: str,
-                 sinopsis: str,
-                 url: str,
-                 categoria: str,
-                 fechaExtraccion: str,
-                 imgPortada: str):
+    def __init__(self):
 
-        self._titulo = titulo
-        self._autor = autor
-        self._generos = generos
-        self._serie = serie
-        self._sinopsis = sinopsis
-        self._url = url
-        self._categoria = categoria
-        self._fechaExtraccion = fechaExtraccion
-        self._imgPortada = imgPortada
+        self._titulo:str = None
+        self._autor:str = None
+        self._generos:list[str] = []
+        self._serie:str = None
+        self._sinopsis:str = None
+        self._url:str = None
+        self._categoria:str = None
+        self._fechaExtraccion:str = None
+        self._imgPortada:str = None
 
-    @property
-    def titulo(self) -> str:
+    def getTitulo(self) -> str:
         return self._titulo
 
-    @titulo.setter
-    def titulo(self, valor: str):
+    def setTitulo(self, valor: str):
         self._titulo = valor
 
-    @property
-    def autor(self) -> str:
+
+    def getAutor(self) -> str:
         return self._autor
 
-    @autor.setter
-    def autor(self, valor: str):
+    def setAutor(self, valor: str):
         self._autor = valor
 
-    @property
-    def generos(self) -> list[str]:
+    
+    def setGeneros(self) -> list[str]:
         return self._generos
-
-    @generos.setter
-    def generos(self, valor: str):
+ 
+    def agregarGenero(self, valor: str):
         self._generos.append(valor)
 
-    @property
-    def serie(self) -> str:
+    def getSerie(self) -> str:
         return self._serie
 
-    @serie.setter
-    def serie(self, valor: str):
+    def setSerie(self, valor: str):
         self._serie = valor
 
-    @property
-    def sinopsis(self) -> str:
+    def getSinopsis(self) -> str:
         return self._sinopsis
 
-    @sinopsis.setter
-    def sinopsis(self, valor: str):
+    def setSinopsis(self, valor: str):
         self._sinopsis = valor
 
-    @property
-    def url(self) -> str:
+    def getUrl(self) -> str:
         return self._url
 
-    @url.setter
-    def url(self, valor: str):
+    def setUrl(self, valor: str):
         self._url = valor
 
-    @property
-    def categoria(self) -> str:
+    def getCategoria(self) -> str:
         return self._categoria
 
-    @categoria.setter
-    def categoria(self, valor: str):
+    def setCategoria(self, valor: str):
         self._categoria = valor
 
-    @property
-    def fechaExtraccion(self) -> str:
+    def getFechaExtraccion(self) -> str:
         return self._fechaExtraccion
 
-    @fechaExtraccion.setter
-    def fechaExtraccion(self, valor: str):
+    def setFechaExtraccion(self, valor: str):
         self._fechaExtraccion = valor
 
-    @property
-    def imgPortada(self) -> str:
+    def getImgPortada(self) -> str:
         return self._imgPortada
 
-    @imgPortada.setter
-    def imgPortada(self, valor: str):
+    def setImgPortada(self, valor: str):
         self._imgPortada = valor
+
+    def __str__(self) -> str:
+        generos = ", ".join(self._generos) if self._generos else "-"
+        return (
+            f"Título: {self._titulo}\n"
+            f"Autor: {self._autor}\n"
+            f"Serie: {self._serie}\n"
+            f"Géneros: {generos}\n"
+            f"Sinopsis: {self._sinopsis}\n"
+            f"Categoría: {self._categoria}\n"
+            f"URL: {self._url}\n"
+            f"Fecha de extracción: {self._fechaExtraccion}\n"
+            f"Imagen de portada: {self._imgPortada}"
+        )
