@@ -25,7 +25,7 @@ class Libro:
         self._autor = valor
 
     
-    def setGeneros(self) -> list[str]:
+    def getGeneros(self) -> list[str]:
         return self._generos
  
     def agregarGenero(self, valor: str):
