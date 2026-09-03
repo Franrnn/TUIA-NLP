@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 class Libro:
     def __init__(self):
 
@@ -8,7 +11,7 @@ class Libro:
         self._sinopsis:str = None
         self._url:str = None
         self._categoria:str = None
-        self._fechaExtraccion:str = None
+        self._fechaExtraccion:str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self._imgPortada:str = None
 
     def getTitulo(self) -> str:
