@@ -4,15 +4,15 @@ from datetime import datetime
 class Libro:
     def __init__(self):
 
-        self._titulo:str = None
-        self._autor:str = None
-        self._generos:list[str] = []
-        self._serie:str = None
-        self._sinopsis:str = None
-        self._url:str = None
-        self._categoria:str = None
-        self._fechaExtraccion:str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self._imgPortada:str = None
+        self._titulo: str = ""
+        self._autores: list[str] = []
+        self._generos: list[str] = []
+        self._serie: str = ""
+        self._sinopsis: str = ""
+        self._url: str = ""
+        self._categoria: str = ""
+        self._fechaExtraccion: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self._urlPortada: str = ""
 
     def getTitulo(self) -> str:
         return self._titulo
@@ -21,16 +21,16 @@ class Libro:
         self._titulo = valor
 
 
-    def getAutor(self) -> str:
-        return self._autor
+    def getAutores(self) -> list[str]:
+        return self._autores
 
-    def setAutor(self, valor: str):
-        self._autor = valor
+    def agregarAutor(self, valor: str):
+        self._autores.append(valor)
 
-    
+
     def getGeneros(self) -> list[str]:
         return self._generos
- 
+
     def agregarGenero(self, valor: str):
         self._generos.append(valor)
 
@@ -64,22 +64,23 @@ class Libro:
     def setFechaExtraccion(self, valor: str):
         self._fechaExtraccion = valor
 
-    def getImgPortada(self) -> str:
-        return self._imgPortada
+    def getUrlPortada(self) -> str:
+        return self._urlPortada
 
-    def setImgPortada(self, valor: str):
-        self._imgPortada = valor
+    def setUrlPortada(self, valor: str):
+        self._urlPortada = valor
 
     def __str__(self) -> str:
-        generos = ", ".join(self._generos) if self._generos else "-"
+        autores = " | ".join(self._autores) if self._autores else "-"
+        generos = " | ".join(self._generos) if self._generos else "-"
         return (
             f"Título: {self._titulo}\n"
-            f"Autor: {self._autor}\n"
+            f"Autores: {autores}\n"
             f"Serie: {self._serie}\n"
             f"Géneros: {generos}\n"
             f"Sinopsis: {self._sinopsis}\n"
             f"Categoría: {self._categoria}\n"
             f"URL: {self._url}\n"
             f"Fecha de extracción: {self._fechaExtraccion}\n"
-            f"Imagen de portada: {self._imgPortada}"
+            f"URL de portada: {self._urlPortada}"
         )
