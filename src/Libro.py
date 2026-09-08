@@ -4,6 +4,7 @@ from datetime import datetime
 class Libro:
     def __init__(self):
 
+        self._id: str = ""
         self._titulo: str = ""
         self._autores: list[str] = []
         self._generos: list[str] = []
@@ -13,6 +14,12 @@ class Libro:
         self._categoria: str = ""
         self._fechaExtraccion: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self._urlPortada: str = ""
+
+    def getId(self) -> str:
+        return self._id
+
+    def setId(self, valor: str):
+        self._id = valor
 
     def getTitulo(self) -> str:
         return self._titulo
@@ -74,6 +81,7 @@ class Libro:
         autores = " | ".join(self._autores) if self._autores else "-"
         generos = " | ".join(self._generos) if self._generos else "-"
         return (
+            f"ID: {self._id}\n"
             f"Título: {self._titulo}\n"
             f"Autores: {autores}\n"
             f"Serie: {self._serie}\n"

@@ -18,6 +18,23 @@ Ciencia ficción
 
 150
 
+## Modelo de datos
+
+Cada fila de `data/libros.csv` representa un libro, con las siguientes columnas:
+
+| Campo | Tipo | Descripción |
+| --- | --- | --- |
+| `id` | string | Identificador de la ficha en Lectulandia (atributo `data-book` del sitio). Si el sitio no lo trae, se genera un `fallback-<n>` propio para no dejar filas sin id. |
+| `titulo` | string | Título del libro. |
+| `autores` | array (JSON) | Autor o autores del libro, ej. `["Isaac Asimov"]`. Se guarda como string JSON de array (no como texto separado por comas), para poder recorrerlo con `json.loads(fila["autores"])`. |
+| `generos` | array (JSON) | Género o géneros que la ficha declara, ej. `["Ciencia ficción", "Novela"]`. Mismo formato que `autores`. |
+| `serie` | string | Serie a la que pertenece el libro, si corresponde; cadena vacía si no pertenece a ninguna. |
+| `sinopsis` | string | Texto completo de la sinopsis, normalizado (sin saltos de línea ni espacios repetidos). |
+| `url_libro` | string | Dirección completa de la ficha del libro en Lectulandia. |
+| `categoria_origen` | string | Categoría por la que el libro ingresó al dataset (siempre "Ciencia ficción" en esta entrega). |
+| `fecha_extraccion` | string (fecha) | Fecha y hora en que se obtuvo el registro, formato `YYYY-MM-DD HH:MM:SS`. |
+| `url_portada` | string | Dirección de la imagen de portada del libro. |
+
 ## Instrucciones de instalación
 
 ```powershell
@@ -43,3 +60,4 @@ El script abre un navegador Chromium, recorre las páginas del género configura
 - Volcado a CSV: se evaluaron distintas formas de serializar los objetos `Libro` (módulo `csv` estándar vs. `pandas`) para manejar correctamente listas (géneros) y campos opcionales.
 - Pérdida de datos ante errores tardíos: en una corrida se extrajeron los 150 libros pero el guardado final falló (carpeta `data/` inexistente), perdiéndose todo el progreso por no haberse guardado nada hasta ese momento. Se resolvió guardando cada registro en el CSV apenas se procesa, en lugar de acumular todo en memoria y escribir una sola vez al final.
 - Manejo de errores por ficha: una falla de red o de parseo en un libro puntual no debe interrumpir toda la extracción; cada ficha se procesa dentro de un bloque que registra el error por consola y continúa con la siguiente.
+- Tipo de dato de autores/géneros: a pedido de la cátedra, se reemplazó el campo de texto separado por `" | "` por un array en formato JSON (parseable con `json.loads`), y se agregó una columna `id` tomada del identificador propio del sitio (`data-book`).

@@ -26,6 +26,7 @@ La cantidad total del universo se confirma con el conteo efectivo de URLs única
  
 | Campo | Descripción |
 | --- | --- |
+| `id` | Identificador del libro (ver convenciones) |
 | `titulo` | Título del libro |
 | `autores` | Autor o autores |
 | `generos` | Género o géneros |
@@ -38,15 +39,17 @@ La cantidad total del universo se confirma con el conteo efectivo de URLs única
  
 **Convenciones adoptadas**
  
-- `autores` y `generos` pueden contener varios valores. Se almacenan en un único campo de texto, unidos por el separador ` | ` (barra vertical con espacios), elegido para no entrar en conflicto con el delimitador del CSV.
+- `id` es el identificador propio que Lectulandia le asigna a la ficha (atributo `data-book`, el mismo que aparece en el listado como `id="post-<id>"`). Si alguna ficha no lo trajera, se genera un identificador propio (`fallback-<n>`) para no dejar filas sin `id`.
+- `autores` y `generos` pueden contener varios valores. Se almacenan como un **array en formato JSON** dentro de la celda (ej. `["Autor A", "Autor B"]`), de modo que cualquier lector del CSV pueda recorrerlos con `json.loads(...)` en vez de tener que parsear un separador de texto. Es el equivalente, dentro de una celda de CSV, a un campo `jsonb`/array nativo en una base de datos.
 - `generos` registra todos los géneros que la ficha declara para el libro. `categoria_origen` deja constancia de la categoría por la cual el libro ingresó al dataset. Ambos campos pueden coincidir parcialmente, pero no son equivalentes.
-- Los campos ausentes se representan de manera uniforme como cadena vacía en todos los registros.
+- Los campos ausentes se representan de manera uniforme como cadena vacía en todos los registros (los arrays vacíos se guardan como `[]`).
 ---
  
 ## 3. Localización de los datos
  
 | Dato | Tipo de página | Etiqueta HTML | Selector propuesto |
 | --- | --- | --- | --- |
+| `id` | Ficha individual | Atributo `data-book` en los botones de acciones ("Lo quiero leer", etc.) | `[data-book]` |
 | Título | Ficha individual | `<h1>` dentro de `<div id="title">` | `#title h1` |
 | Autores | Ficha individual | `<a class="dinSource">` dentro de `<div id="autor">` | `#autor a.dinSource` |
 | Géneros | Ficha individual | `<a class="dinSource">` dentro de `<div id="genero">` | `#genero a.dinSource` |
@@ -66,6 +69,8 @@ Los selectores fueron obtenidos inspeccionando el HTML del sitio con las herrami
 **Etiquetas de campo.** Los bloques `#autor`, `#serie` y `#genero` comparten la misma estructura: un `<span class="tagTitle">` con la etiqueta literal del campo ("Autor:", "Libro N de:", "Generos:") seguido de uno o más `<a class="dinSource">` con el contenido. Los selectores apuntan directamente a los enlaces, de modo que no es necesario depurar el prefijo del texto extraído.
  
 **Cardinalidad.** `#autor` y `#genero` devuelven habitualmente más de un elemento y deben recorrerse en su totalidad. `#serie` devuelve un único elemento o ninguno, según el libro pertenezca o no a una serie.
+
+**Identificador de la ficha.** El atributo `data-book` aparece repetido varias veces dentro de `#book` (en los botones "Lo quiero leer", "Lo estoy leyendo", etc.), siempre con el mismo valor numérico para una misma ficha, y coincide con el `id="post-<id>"` que esa misma ficha tiene cuando aparece listada en el catálogo. Se toma el primer elemento que lo declara.
  
 **Tratamiento de la sinopsis.** El sitio no envuelve la sinopsis de forma consistente: según el libro, el contenido de `#sinopsis` aparece dentro de un `<span>`, dentro de un `<p class="description">`, o como texto suelto directamente dentro del `<div>`, sin ninguna etiqueta envolvente. Por eso la extracción toma el texto completo del contenedor `#sinopsis` en lugar de apuntar a una etiqueta hija específica. Ese texto tampoco es plano: incluye etiquetas de énfasis intercaladas (títulos de obras, expresiones destacadas) y separadores `<br>` entre párrafos. La extracción debe recuperar el texto de todos los nodos descendientes; tomar únicamente los nodos de texto directos produciría un resultado incompleto que omite los fragmentos en cursiva. Los saltos de párrafo se convierten en espacio y las secuencias de espacios en blanco se colapsan, de modo que la sinopsis se almacena como un único párrafo de texto plano. No se normalizan comillas, guiones ni otros signos tipográficos: el texto se conserva tal como fue publicado.
  

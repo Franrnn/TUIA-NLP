@@ -1,3 +1,4 @@
+import json
 import random
 import re
 from pathlib import Path
@@ -16,6 +17,7 @@ HEADLESS = False  # Cambiar a True para correr sin mostrar la ventana del navega
 listaLibrosProcesados = []
 
 campos = [
+    "id",
     "titulo",
     "autores",
     "generos",
@@ -37,9 +39,13 @@ def limpiarTexto(texto: str) -> str:
 
 def libroAFila(libro: Libro) -> dict:
     return {
+        "id": libro.getId(),
         "titulo": libro.getTitulo(),
-        "autores": " | ".join(libro.getAutores()),
-        "generos": " | ".join(libro.getGeneros()),
+        # Se guardan como string JSON de array (no como texto separado por " | ")
+        # para que autores/generos sean un tipo array recorrible desde cualquier
+        # lector del CSV, ej. json.loads(fila["autores"]).
+        "autores": json.dumps(libro.getAutores(), ensure_ascii=False),
+        "generos": json.dumps(libro.getGeneros(), ensure_ascii=False),
         "serie": libro.getSerie(),
         "sinopsis": libro.getSinopsis(),
         "url_libro": libro.getUrl(),
@@ -54,6 +60,8 @@ def validarDataset(archivo: str) -> None:
     df = pd.read_csv(archivo, dtype=str, keep_default_na=False)
     total = len(df)
     duplicados = int(df["url_libro"].duplicated().sum())
+    idsDuplicados = int(df["id"].duplicated().sum())
+    sinId = int((df["id"].str.strip() == "").sum())
     sinTitulo = int((df["titulo"].str.strip() == "").sum())
     urlsInvalidas = int((~df["url_libro"].str.startswith("http")).sum())
     conSinopsis = int((df["sinopsis"].str.strip() != "").sum())
@@ -62,13 +70,15 @@ def validarDataset(archivo: str) -> None:
     print("\n--- Controles mínimos ---")
     print(f"Registros totales: {total}")
     print(f"Duplicados por url_libro: {duplicados}")
+    print(f"Duplicados por id: {idsDuplicados}")
+    print(f"Registros sin id: {sinId}")
     print(f"Registros sin título: {sinTitulo}")
     print(f"URLs inválidas: {urlsInvalidas}")
     print(f"Registros con sinopsis: {conSinopsis} ({porcentajeSinopsis:.1f}%)")
 
     if not (100 <= total <= 200):
         print(f"AVISO: la cantidad de libros ({total}) está fuera del rango 100-200 pedido en la consigna.")
-    if duplicados or sinTitulo or urlsInvalidas:
+    if duplicados or idsDuplicados or sinId or sinTitulo or urlsInvalidas:
         print("AVISO: revisar los registros señalados arriba antes de entregar.")
 
 
@@ -97,6 +107,7 @@ if __name__ == "__main__":
         page.goto(f"{urlBase}{urlGenero}")
         listaUrlsLibros = ObtenerUrlsLibros(page)
         rng = random.Random(42)
+        contadorIdFallback = 0
 
         while (len(listaUrlsLibros) > 0) and (len(listaLibrosProcesados) < cantidadLibrosScraper):
             indice = rng.randrange(len(listaUrlsLibros))
@@ -111,6 +122,16 @@ if __name__ == "__main__":
                 # los selectores podrían devolver datos de otro libro listado en la página.
                 contenedorLibro = htmlLibroParaScraper.select_one("#book") or htmlLibroParaScraper
                 libro = Libro()
+
+                # El sitio identifica cada ficha con un id propio en el atributo
+                # data-book (visible en los botones de acciones). Si alguna vez
+                # no estuviera presente, se usa un contador propio como respaldo.
+                idElemento = contenedorLibro.select_one("[data-book]")
+                if idElemento and idElemento.has_attr("data-book"):
+                    libro.setId(idElemento["data-book"])
+                else:
+                    contadorIdFallback += 1
+                    libro.setId(f"fallback-{contadorIdFallback}")
 
                 titulo = contenedorLibro.select_one("#title h1")
 
