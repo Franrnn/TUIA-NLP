@@ -43,6 +43,3 @@ resultados/
 # Windows
 Thumbs.db
 desktop.ini
-
-# libros
-data/libros.csv
