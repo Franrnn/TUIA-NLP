@@ -1,4 +1,7 @@
+import json
 import random
+import re
+from pathlib import Path
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -10,12 +13,78 @@ urlBase = "https://ww3.lectulandia.co"
 urlGenero = "/genero/ciencia-ficcion"
 categoriaSeleccionada = "Ciencia ficción"
 archivo_csv = "./data/libros.csv"
+HEADLESS = False  # Cambiar a True para correr sin mostrar la ventana del navegador.
 listaLibrosProcesados = []
+
+campos = [
+    "id",
+    "titulo",
+    "autores",
+    "generos",
+    "serie",
+    "sinopsis",
+    "url_libro",
+    "categoria_origen",
+    "fecha_extraccion",
+    "url_portada",
+]
+
+
+def limpiarTexto(texto: str) -> str:
+    """Colapsa espacios en blanco y saltos de línea, y recorta los extremos."""
+    if not texto:
+        return ""
+    return re.sub(r"\s+", " ", texto).strip()
+
+
+def libroAFila(libro: Libro) -> dict:
+    return {
+        "id": libro.getId(),
+        "titulo": libro.getTitulo(),
+        # Se guardan como string JSON de array (no como texto separado por " | ")
+        # para que autores/generos sean un tipo array recorrible desde cualquier
+        # lector del CSV, ej. json.loads(fila["autores"]).
+        "autores": json.dumps(libro.getAutores(), ensure_ascii=False),
+        "generos": json.dumps(libro.getGeneros(), ensure_ascii=False),
+        "serie": libro.getSerie(),
+        "sinopsis": libro.getSinopsis(),
+        "url_libro": libro.getUrl(),
+        "categoria_origen": libro.getCategoria(),
+        "fecha_extraccion": libro.getFechaExtraccion(),
+        "url_portada": libro.getUrlPortada(),
+    }
+
+
+def validarDataset(archivo: str) -> None:
+    """Controles mínimos antes de dar por cerrada la extracción."""
+    df = pd.read_csv(archivo, dtype=str, keep_default_na=False)
+    total = len(df)
+    duplicados = int(df["url_libro"].duplicated().sum())
+    idsDuplicados = int(df["id"].duplicated().sum())
+    sinId = int((df["id"].str.strip() == "").sum())
+    sinTitulo = int((df["titulo"].str.strip() == "").sum())
+    urlsInvalidas = int((~df["url_libro"].str.startswith("http")).sum())
+    conSinopsis = int((df["sinopsis"].str.strip() != "").sum())
+    porcentajeSinopsis = (conSinopsis / total * 100) if total else 0
+
+    print("\n--- Controles mínimos ---")
+    print(f"Registros totales: {total}")
+    print(f"Duplicados por url_libro: {duplicados}")
+    print(f"Duplicados por id: {idsDuplicados}")
+    print(f"Registros sin id: {sinId}")
+    print(f"Registros sin título: {sinTitulo}")
+    print(f"URLs inválidas: {urlsInvalidas}")
+    print(f"Registros con sinopsis: {conSinopsis} ({porcentajeSinopsis:.1f}%)")
+
+    if not (100 <= total <= 200):
+        print(f"AVISO: la cantidad de libros ({total}) está fuera del rango 100-200 pedido en la consigna.")
+    if duplicados or idsDuplicados or sinId or sinTitulo or urlsInvalidas:
+        print("AVISO: revisar los registros señalados arriba antes de entregar.")
+
 
 def ObtenerUrlsLibros(page: Page) -> list[str]:
     listaUrlsLibros = []
-    # nroUltimaPagina = int(page.locator("div.page-nav").locator("a").all()[2].text_content())
-    nroUltimaPagina = 1
+    nroUltimaPagina = int(page.locator("div.page-nav").locator("a").all()[2].text_content())
     for i in range(nroUltimaPagina):
         listaArticulosLibros  = page.locator("div.books-grid").locator("article").all()
         for articuloLibro in listaArticulosLibros:
@@ -24,105 +93,111 @@ def ObtenerUrlsLibros(page: Page) -> list[str]:
         page.goto(f"{urlBase}{urlGenero}/page/{i+1}")
         page.wait_for_timeout(5000)
 
-    return listaUrlsLibros
-    
-with sync_playwright() as p:
-    cantidadLibrosScraper = 50
-    browser = p.chromium.launch(headless=False)
-    page = browser.new_page()
-    page.goto(f"{urlBase}{urlGenero}")
-    listaUrlsLibros = ObtenerUrlsLibros(page)
-    rng = random.Random(42)
+    # Se descarta cualquier URL repetida, conservando el primer orden de aparición.
+    return list(dict.fromkeys(listaUrlsLibros))
 
-    while (len(listaUrlsLibros) > 0) and (len(listaLibrosProcesados) < cantidadLibrosScraper):
-        indice = rng.randrange(len(listaUrlsLibros))
-        urlLibroParaScrapear = listaUrlsLibros.pop(indice)
-        urlCompletaDelLibro = f"{urlBase}{urlLibroParaScrapear}"
-        page.goto(urlCompletaDelLibro, wait_until="domcontentloaded")
+if __name__ == "__main__":
+    Path(archivo_csv).parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(columns=campos).to_csv(archivo_csv, index=False, encoding="utf-8-sig")
 
-        htmlLibroParaScraper = BeautifulSoup(page.content(), "html.parser")
-        libro = Libro()
+    with sync_playwright() as p:
+        cantidadLibrosScraper = 150
+        browser = p.chromium.launch(headless=HEADLESS)
+        page = browser.new_page()
+        page.goto(f"{urlBase}{urlGenero}")
+        listaUrlsLibros = ObtenerUrlsLibros(page)
+        rng = random.Random(42)
+        contadorIdFallback = 0
 
-        titulo = htmlLibroParaScraper.select_one("#title > h1")
-        
-        if not titulo:
-            continue
+        while (len(listaUrlsLibros) > 0) and (len(listaLibrosProcesados) < cantidadLibrosScraper):
+            indice = rng.randrange(len(listaUrlsLibros))
+            urlLibroParaScrapear = listaUrlsLibros.pop(indice)
+            urlCompletaDelLibro = f"{urlBase}{urlLibroParaScrapear}"
 
-        libro.setTitulo(titulo.text)     
+            try:
+                page.goto(urlCompletaDelLibro, wait_until="domcontentloaded")
 
-        autor = htmlLibroParaScraper.select_one("#autor > a")
-        
-        if autor:
-            libro.setAutor(autor.text)
+                htmlLibroParaScraper = BeautifulSoup(page.content(), "html.parser")
+                # Se acota la búsqueda a la ficha del libro visitado: sin este contenedor,
+                # los selectores podrían devolver datos de otro libro listado en la página.
+                contenedorLibro = htmlLibroParaScraper.select_one("#book") or htmlLibroParaScraper
+                libro = Libro()
 
-        generos = htmlLibroParaScraper.select('#genero > a')
-        
-        for g in generos:
-            libro.agregarGenero(g.text)
-            
-        serie = htmlLibroParaScraper.select_one("#serie > a")
-        
-        if serie:
-            libro.setSerie(serie.text)
-        
-        sinopsis = htmlLibroParaScraper.select_one('#sinopsis > span')
-        
-        if sinopsis:
-            libro.setSinopsis(sinopsis.text)
+                # El sitio identifica cada ficha con un id propio en el atributo
+                # data-book (visible en los botones de acciones). Si alguna vez
+                # no estuviera presente, se usa un contador propio como respaldo.
+                idElemento = contenedorLibro.select_one("[data-book]")
+                if idElemento and idElemento.has_attr("data-book"):
+                    libro.setId(idElemento["data-book"])
+                else:
+                    contadorIdFallback += 1
+                    libro.setId(f"fallback-{contadorIdFallback}")
 
-        elem_img = htmlLibroParaScraper.select_one("#cover img, .cover img")
-        if elem_img and elem_img.has_attr("src"):
-            libro.setImgPortada(elem_img["src"])
+                titulo = contenedorLibro.select_one("#title h1")
 
-        libro.setUrl(urlCompletaDelLibro)
+                if not titulo:
+                    continue
 
-        libro.setCategoria(categoriaSeleccionada)
+                libro.setTitulo(limpiarTexto(titulo.text))
 
-        listaLibrosProcesados.append(libro)
-        
-        print(
-            f"[{len(listaLibrosProcesados)}/{cantidadLibrosScraper}] Extraído: {libro.getTitulo()}"
-        )
-        
-        page.wait_for_timeout(5000)
+                autores = contenedorLibro.select("#autor a.dinSource")
 
-    browser.close()
+                for a in autores:
+                    libro.agregarAutor(limpiarTexto(a.text))
 
-campos = [
-    "titulo",
-    "autor",
-    "generos",
-    "serie",
-    "sinopsis",
-    "url_libro",
-    "categoria_origen",
-    "fecha_extraccion",
-    "img_portada",
-]
+                generos = contenedorLibro.select("#genero a.dinSource")
 
-filas = [
-    {
-        "titulo": lib.getTitulo(),
-        "autor": lib.getAutor(),
-        "generos": ", ".join(lib.getGeneros()) if lib.getGeneros() else "",
-        "serie": lib.getSerie() or "",
-        "sinopsis": lib.getSinopsis(),
-        "url_libro": lib.getUrl(),
-        "categoria_origen": lib.getCategoria(),
-        "fecha_extraccion": lib.getFechaExtraccion(),
-        "img_portada": lib.getImgPortada(),
-    }
-    for lib in listaLibrosProcesados
-]
+                for g in generos:
+                    libro.agregarGenero(limpiarTexto(g.text))
 
-df = pd.DataFrame(filas, columns=campos)
+                serie = contenedorLibro.select_one("#serie a.dinSource")
 
-df.to_csv(archivo_csv, index=False, encoding="utf-8-sig")
+                if serie:
+                    libro.setSerie(limpiarTexto(serie.text))
 
-print(f"\nSe guardaron {len(listaLibrosProcesados)} registros en '{archivo_csv}'.")
+                # El sitio envuelve la sinopsis de forma inconsistente: a veces en
+                # <span>, a veces en <p class="description">, y a veces como texto
+                # plano suelto dentro del div. Se toma el contenedor completo para
+                # cubrir los tres casos por igual.
+                sinopsis = contenedorLibro.select_one("#sinopsis")
 
+                if sinopsis:
+                    for salto in sinopsis.find_all("br"):
+                        salto.replace_with(" ")
+                    libro.setSinopsis(limpiarTexto(sinopsis.get_text()))
 
-    
+                elem_img = contenedorLibro.select_one("#cover img, .cover img")
+                if elem_img and elem_img.has_attr("src"):
+                    libro.setUrlPortada(elem_img["src"])
+
+                libro.setUrl(urlCompletaDelLibro)
+
+                libro.setCategoria(categoriaSeleccionada)
+
+                listaLibrosProcesados.append(libro)
+
+                # Se guarda cada registro apenas se procesa, para no perder lo ya
+                # extraído si una ficha posterior falla o se interrumpe la ejecución.
+                pd.DataFrame([libroAFila(libro)], columns=campos).to_csv(
+                    archivo_csv, mode="a", header=False, index=False, encoding="utf-8"
+                )
+
+                print(
+                    f"[{len(listaLibrosProcesados)}/{cantidadLibrosScraper}] Extraído: {libro.getTitulo()}"
+                )
+
+                page.wait_for_timeout(5000)
+            except Exception as error:
+                print(f"Error al procesar '{urlCompletaDelLibro}': {error}. Se continúa con la siguiente ficha.")
+                continue
+
+        browser.close()
+
+    print(f"\nSe guardaron {len(listaLibrosProcesados)} registros en '{archivo_csv}'.")
+
+    if listaLibrosProcesados:
+        validarDataset(archivo_csv)
+
 
 
 
