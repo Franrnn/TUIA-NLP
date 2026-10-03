@@ -1,0 +1,530 @@
+[
+  {
+    "id": "q01",
+    "consulta": "viajes en el tiempo para cambiar el pasado",
+    "criterio": "El viaje o la manipulación del tiempo es parte de la trama. No cuentan las antologías que solo lo nombran como tema del autor.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "101670",
+        "titulo": "La última Noche de Hipatia"
+      },
+      {
+        "id": "7493",
+        "titulo": "Solo contra el tiempo"
+      },
+      {
+        "id": "35140",
+        "titulo": "Las encrucijadas del tiempo"
+      },
+      {
+        "id": "56391",
+        "titulo": "Los pecios y los náufragos"
+      },
+      {
+        "id": "23982",
+        "titulo": "Ruinas"
+      },
+      {
+        "id": "106713",
+        "titulo": "Así se pierde la guerra del tiempo"
+      }
+    ]
+  },
+  {
+    "id": "q02",
+    "consulta": "una enfermedad o plaga que extermina a casi toda la humanidad",
+    "criterio": "Epidemia que diezma a la población, incluidas las plagas zombi.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "34556",
+        "titulo": "Estación Once"
+      },
+      {
+        "id": "11526",
+        "titulo": "Misión África"
+      },
+      {
+        "id": "3533",
+        "titulo": "Tiempo de cosecha"
+      },
+      {
+        "id": "52669",
+        "titulo": "El último hombre"
+      },
+      {
+        "id": "2386",
+        "titulo": "La marcha zombi"
+      }
+    ]
+  },
+  {
+    "id": "q03",
+    "consulta": "la Tierra queda devastada por una guerra y los supervivientes intentan seguir adelante",
+    "criterio": "La guerra ya ocurrió y la historia transcurre después. No cuenta la amenaza de guerra todavía no desatada.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "46078",
+        "titulo": "Los últimos días de la Tierra"
+      },
+      {
+        "id": "124222",
+        "titulo": "Los creadores del mundo"
+      },
+      {
+        "id": "49229",
+        "titulo": "Aniara"
+      },
+      {
+        "id": "56391",
+        "titulo": "Los pecios y los náufragos"
+      }
+    ]
+  },
+  {
+    "id": "q04",
+    "consulta": "extraterrestres hostiles que atacan o quieren dominar la Tierra",
+    "criterio": "Seres de otro mundo que agreden o someten a la humanidad en la Tierra.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "46078",
+        "titulo": "Los últimos días de la Tierra"
+      },
+      {
+        "id": "7892",
+        "titulo": "Barrera siniestra"
+      },
+      {
+        "id": "105091",
+        "titulo": "Trilogía de los Tres Cuerpos"
+      },
+      {
+        "id": "17503",
+        "titulo": "Los visitantes"
+      },
+      {
+        "id": "111401",
+        "titulo": "Orfanato"
+      }
+    ]
+  },
+  {
+    "id": "q05",
+    "consulta": "primer contacto con una inteligencia no humana y la dificultad de entenderse con ella",
+    "criterio": "El encuentro o la comunicación con otra inteligencia es el centro de la historia, no una guerra.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "45412",
+        "titulo": "Solaris (trad. Matilde Horne)"
+      },
+      {
+        "id": "13297",
+        "titulo": "Los oscuros años luz"
+      },
+      {
+        "id": "24880",
+        "titulo": "Viaje de un siglo"
+      },
+      {
+        "id": "80971",
+        "titulo": "El día que llegaron los marcianos"
+      },
+      {
+        "id": "8329",
+        "titulo": "La llegada"
+      }
+    ]
+  },
+  {
+    "id": "q06",
+    "consulta": "robots e inteligencias artificiales",
+    "criterio": "Robots o inteligencias artificiales con un papel central. No cuentan las antologías donde aparecen en un solo relato.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "27916",
+        "titulo": "Justicia auxiliar"
+      },
+      {
+        "id": "118826",
+        "titulo": "Guerra"
+      },
+      {
+        "id": "14199",
+        "titulo": "La caja de las orquídeas"
+      },
+      {
+        "id": "43276",
+        "titulo": "Trinidad"
+      },
+      {
+        "id": "10341",
+        "titulo": "Intruso"
+      }
+    ]
+  },
+  {
+    "id": "q07",
+    "consulta": "sociedades totalitarias donde el gobierno vigila y controla a la población",
+    "criterio": "Régimen opresivo que controla a la gente como eje de la novela.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "124222",
+        "titulo": "Los creadores del mundo"
+      },
+      {
+        "id": "11806",
+        "titulo": "Prometidos"
+      },
+      {
+        "id": "11823",
+        "titulo": "Preciada"
+      },
+      {
+        "id": "37838",
+        "titulo": "El Oráculo"
+      },
+      {
+        "id": "610",
+        "titulo": "El viajero"
+      },
+      {
+        "id": "114895",
+        "titulo": "1984 (trad. Esteban H. Bussetti)"
+      },
+      {
+        "id": "6075",
+        "titulo": "Legend"
+      },
+      {
+        "id": "123025",
+        "titulo": "Moscú 1979"
+      },
+      {
+        "id": "124851",
+        "titulo": "El talón de hierro (ed. Jesús Isaías Gómez)"
+      }
+    ]
+  },
+  {
+    "id": "q08",
+    "consulta": "telepatía y personas con poderes mentales",
+    "criterio": "Telepatía, facultades psíquicas o conexión directa entre mentes.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "59533",
+        "titulo": "Mirando a un cielo silencioso"
+      },
+      {
+        "id": "116002",
+        "titulo": "Con otros ojos"
+      },
+      {
+        "id": "42611",
+        "titulo": "El hombre completo"
+      },
+      {
+        "id": "11433",
+        "titulo": "El señor de los sueños"
+      },
+      {
+        "id": "8899",
+        "titulo": "Las torres de Toron"
+      },
+      {
+        "id": "107404",
+        "titulo": "Los herederos de Hammerfell"
+      }
+    ]
+  },
+  {
+    "id": "q09",
+    "consulta": "universos paralelos",
+    "criterio": "Personajes que pasan a otro universo o mundos paralelos que entran en contacto.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "110530",
+        "titulo": "Universo de locos y otras novelas de marcianos"
+      },
+      {
+        "id": "35140",
+        "titulo": "Las encrucijadas del tiempo"
+      },
+      {
+        "id": "54256",
+        "titulo": "Un destello en el cielo"
+      },
+      {
+        "id": "998",
+        "titulo": "Humanos"
+      }
+    ]
+  },
+  {
+    "id": "q10",
+    "consulta": "guerras espaciales entre imperios y ejércitos",
+    "criterio": "Ciencia ficción militar: batallas, campañas y ejércitos en el espacio.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "17355",
+        "titulo": "Santa Sabbat mártir"
+      },
+      {
+        "id": "7661",
+        "titulo": "A sangre y fuego"
+      },
+      {
+        "id": "57516",
+        "titulo": "Los conquistadores de Ruder"
+      },
+      {
+        "id": "17150",
+        "titulo": "La gran alianza"
+      },
+      {
+        "id": "113083",
+        "titulo": "Muerte titánica"
+      },
+      {
+        "id": "111401",
+        "titulo": "Orfanato"
+      },
+      {
+        "id": "11520",
+        "titulo": "Heredero del Dragón"
+      },
+      {
+        "id": "24248",
+        "titulo": "Salvation’s Reach"
+      }
+    ]
+  },
+  {
+    "id": "q11",
+    "consulta": "antologías de relatos de varios autores",
+    "criterio": "Libros que reúnen relatos de distintos autores. No cuentan las recopilaciones de un solo autor ni las revistas.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "120428",
+        "titulo": "Ahí fuera gritando"
+      },
+      {
+        "id": "48585",
+        "titulo": "Castillos en el aire"
+      },
+      {
+        "id": "106371",
+        "titulo": "Relatos Premiados Alberto Magno entre 1989-1998"
+      },
+      {
+        "id": "13305",
+        "titulo": "Ciencia ficción, selección 37"
+      },
+      {
+        "id": "59575",
+        "titulo": "A la deriva en el mar de las Lluvias y otros relatos"
+      },
+      {
+        "id": "36395",
+        "titulo": "Un par del espacio"
+      },
+      {
+        "id": "20454",
+        "titulo": "El cinturón de Venus"
+      },
+      {
+        "id": "1832",
+        "titulo": "Premio UPC 2000 – Novela corta de ciencia ficción"
+      },
+      {
+        "id": "81594",
+        "titulo": "Premio UPC 1999 – Novela corta de Ciencia Ficción"
+      },
+      {
+        "id": "46018",
+        "titulo": "Antología No Euclidiana / 1"
+      },
+      {
+        "id": "47350",
+        "titulo": "Planetas Invisibles"
+      }
+    ]
+  },
+  {
+    "id": "q12",
+    "consulta": "historias ambientadas en Marte o con marcianos",
+    "criterio": "Marte o sus habitantes son parte importante de la historia.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "3715",
+        "titulo": "La hija de Marte"
+      },
+      {
+        "id": "110530",
+        "titulo": "Universo de locos y otras novelas de marcianos"
+      },
+      {
+        "id": "56922",
+        "titulo": "La sombra sobre Marte"
+      },
+      {
+        "id": "10718",
+        "titulo": "El ladrón cuántico"
+      },
+      {
+        "id": "80971",
+        "titulo": "El día que llegaron los marcianos"
+      }
+    ]
+  },
+  {
+    "id": "q13",
+    "consulta": "manipulación genética y experimentos biológicos con consecuencias imprevistas",
+    "criterio": "Un experimento o descubrimiento biológico sobre seres vivos desencadena la trama.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "106222",
+        "titulo": "Cromosoma 8"
+      },
+      {
+        "id": "22290",
+        "titulo": "Dificultades con los líquenes"
+      },
+      {
+        "id": "31941",
+        "titulo": "El alimento de los dioses"
+      },
+      {
+        "id": "1596",
+        "titulo": "La ensenada Calibán"
+      },
+      {
+        "id": "36131",
+        "titulo": "El efecto Lázaro"
+      }
+    ]
+  },
+  {
+    "id": "q14",
+    "consulta": "un viaje a la Luna",
+    "criterio": "La Luna es destino o escenario de la historia.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "29001",
+        "titulo": "Extraños en la luna"
+      },
+      {
+        "id": "109757",
+        "titulo": "Milenio"
+      },
+      {
+        "id": "17934",
+        "titulo": "Consigue un traje espacial: viajarás"
+      },
+      {
+        "id": "118471",
+        "titulo": "Los comandos de la luna"
+      }
+    ]
+  },
+  {
+    "id": "q15",
+    "consulta": "una nave espacial perdida o accidentada lejos de casa",
+    "criterio": "Nave que se desvía, se pierde o se estrella y deja a sus ocupantes aislados.",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "49229",
+        "titulo": "Aniara"
+      },
+      {
+        "id": "54256",
+        "titulo": "Un destello en el cielo"
+      },
+      {
+        "id": "45330",
+        "titulo": "Atados a las estrellas"
+      },
+      {
+        "id": "40461",
+        "titulo": "Ecos de la Tierra"
+      },
+      {
+        "id": "110518",
+        "titulo": "Horizonte de estrellas"
+      }
+    ]
+  },
+  {
+    "id": "q16",
+    "consulta": "una ciencia capaz de predecir el futuro de la sociedad",
+    "criterio": "Predicción del futuro por métodos científicos o matemáticos (psicohistoria, predicción estocástica).",
+    "sin_palabras_en_comun": false,
+    "relevantes": [
+      {
+        "id": "45676",
+        "titulo": "El hombre estocástico"
+      },
+      {
+        "id": "102112",
+        "titulo": "Preludio a la Fundación (trad. M. García Martínez)"
+      },
+      {
+        "id": "40376",
+        "titulo": "Crisis psicohistórica"
+      }
+    ]
+  },
+  {
+    "id": "q17",
+    "consulta": "peripecias de buceo entre fauna acuática",
+    "criterio": "Historias que transcurren en el mar o bajo el agua. Las sinopsis hablan de océanos, submarinos y seres marinos; la consulta usa otras palabras.",
+    "sin_palabras_en_comun": true,
+    "relevantes": [
+      {
+        "id": "106222",
+        "titulo": "Cromosoma 8"
+      },
+      {
+        "id": "46478",
+        "titulo": "20000 leguas de viaje submarino (JLJ)"
+      },
+      {
+        "id": "9327",
+        "titulo": "La luna y el sol"
+      },
+      {
+        "id": "36131",
+        "titulo": "El efecto Lázaro"
+      }
+    ]
+  },
+  {
+    "id": "q18",
+    "consulta": "difuntos que resucitan hambrientos",
+    "criterio": "Historias de zombis. Las sinopsis dicen 'zombis'; la consulta lo describe sin usar esa palabra.",
+    "sin_palabras_en_comun": true,
+    "relevantes": [
+      {
+        "id": "11526",
+        "titulo": "Misión África"
+      },
+      {
+        "id": "2386",
+        "titulo": "La marcha zombi"
+      }
+    ]
+  }
+]
