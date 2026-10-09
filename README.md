@@ -1,23 +1,17 @@
-﻿# TUIA — Procesamiento de Lenguaje Natural
+# TUIA — Procesamiento de Lenguaje Natural
 
-Ejercicios y trabajos practicos de la materia NLP.
-Tecnicatura Universitaria en Inteligencia Artificial — UNR.
+Trabajos prácticos de la materia Procesamiento de Lenguaje Natural, Tecnicatura Universitaria en Inteligencia Artificial (UNR).
 
-## Integrantes del grupo
-
-- Franco Renna
-- Micaela Gómez
-- Irma Carolina Ruiz
-- Franco Esparza
+**Integrantes:** Franco Renna · Micaela Gómez · Irma Carolina Ruiz · Franco Esparza
 
 ## Qué hay en este repositorio
 
 | Trabajo | Qué hace | Dónde está |
 | --- | --- | --- |
-| **TP1** — Extracción y procesamiento de texto | Scraper que recorre la categoría *Ciencia ficción* de Lectulandia y arma un dataset de 150 libros con su sinopsis. | `src/scraper.py`, `src/Libro.py`, `docs/diseno_extraccion.md`, `data/libros.csv` |
-| **TP2** — Representación vectorial de texto | Sobre las sinopsis del TP1: embeddings de palabra (Word2Vec propio y pre-entrenado), embeddings de oración (SBERT), persistencia en Postgres con `pgvector` y búsqueda semántica evaluada contra TF-IDF. | `src/TP2_Renna_Gomez_Ruiz_Esparza.ipynb`, `data/`, `models/` (no se sube) |
+| **TP1** — Extracción de texto | Scraper que recorre la categoría *Ciencia ficción* de Lectulandia y arma un dataset de 150 libros con sus metadatos y su sinopsis. | `src/scraper.py`, `src/Libro.py`, `docs/diseno_extraccion.md`, `data/libros.csv` |
+| **TP2** — Embeddings y búsqueda semántica | Sobre las sinopsis del TP1: compara TF-IDF, Word2Vec (propio y pre-entrenado) y SBERT, guarda los vectores en Postgres con `pgvector`, busca por similitud y evalúa los modelos con un conjunto propio de consultas. | `src/TP2_Renna_Gomez_Ruiz_Esparza.ipynb`, `queries.json`, `docs/informe.pdf`, `data/` |
 
-## Instalación (común a los dos trabajos)
+## Instalación
 
 Requiere Python 3.12 o 3.13.
 
@@ -27,83 +21,25 @@ python -m venv .venv-NLP
 pip install -r requirements.txt
 ```
 
-`requirements.txt` incluye las dependencias de los dos trabajos.
-
----
-
-# TP1 — Extracción de datos
-
-### Categoría seleccionada
-
-Ciencia ficción
-
-### Cantidad de libros extraídos
-
-150
-
-### Modelo de datos
-
-Cada fila de `data/libros.csv` representa un libro, con las siguientes columnas:
-
-| Campo | Tipo | Descripción |
-| --- | --- | --- |
-| `id` | string | Identificador de la ficha en Lectulandia (atributo `data-book` del sitio). Si el sitio no lo trae, se genera un `fallback-<n>` propio para no dejar filas sin id. |
-| `titulo` | string | Título del libro. |
-| `autores` | array (JSON) | Autor o autores del libro, ej. `["Isaac Asimov"]`. Se guarda como string JSON de array (no como texto separado por comas), para poder recorrerlo con `json.loads(fila["autores"])`. |
-| `generos` | array (JSON) | Género o géneros que la ficha declara, ej. `["Ciencia ficción", "Novela"]`. Mismo formato que `autores`. |
-| `serie` | string | Serie a la que pertenece el libro, si corresponde; cadena vacía si no pertenece a ninguna. |
-| `sinopsis` | string | Texto completo de la sinopsis, normalizado (sin saltos de línea ni espacios repetidos). |
-| `url_libro` | string | Dirección completa de la ficha del libro en Lectulandia. |
-| `categoria_origen` | string | Categoría por la que el libro ingresó al dataset (siempre "Ciencia ficción" en esta entrega). |
-| `fecha_extraccion` | string (fecha) | Fecha y hora en que se obtuvo el registro, formato `YYYY-MM-DD HH:MM:SS`. |
-| `url_portada` | string | Dirección de la imagen de portada del libro. |
-
-### Instrucciones de instalación
-
-Además de la instalación común (ver arriba), el scraper necesita el navegador de Playwright:
+`requirements.txt` incluye las dependencias de los dos trabajos. Para volver a ejecutar el scraper del TP1 hace falta además el navegador de Playwright:
 
 ```powershell
 playwright install chromium
 ```
 
-### Instrucciones para ejecutar el programa
+## Ejecución
+
+### TP1: scraper
 
 ```powershell
 python src/scraper.py
 ```
 
-El script abre un navegador Chromium, recorre las páginas del género configurado, extrae una muestra aleatoria de libros y genera `data/libros.csv` con los datos obtenidos. Por defecto se ejecuta mostrando la ventana del navegador; para correrlo sin mostrarla, cambiar la constante `HEADLESS` a `True` al inicio de `src/scraper.py`.
+Abre un navegador Chromium, recorre el listado del género, extrae una muestra aleatoria de 150 libros y genera `data/libros.csv`. Para ejecutarlo sin mostrar la ventana, cambiar la constante `HEADLESS` a `True` al inicio de `src/scraper.py`. Sobrescribe el CSV existente y tarda varios minutos.
 
-### Principales dificultades encontradas
+### TP2: notebook
 
-- Selectores CSS inconsistentes entre libros (autor, serie e imagen de portada no siempre están presentes), lo que obligó a validar cada campo antes de asignarlo en `Libro`.
-- Tiempos de carga variables del sitio: fue necesario agregar esperas explícitas (`wait_for_timeout`) entre navegaciones para evitar extraer páginas incompletas.
-- Paginación dinámica: el número de la última página se obtiene de forma dinámica.
-- Volcado a CSV: se evaluaron distintas formas de serializar los objetos `Libro` (módulo `csv` estándar vs. `pandas`) para manejar correctamente listas (géneros) y campos opcionales.
-- Pérdida de datos ante errores tardíos: en una corrida se extrajeron los 150 libros pero el guardado final falló (carpeta `data/` inexistente), perdiéndose todo el progreso por no haberse guardado nada hasta ese momento. Se resolvió guardando cada registro en el CSV apenas se procesa, en lugar de acumular todo en memoria y escribir una sola vez al final.
-- Manejo de errores por ficha: una falla de red o de parseo en un libro puntual no debe interrumpir toda la extracción; cada ficha se procesa dentro de un bloque que registra el error por consola y continúa con la siguiente.
-- Tipo de dato de autores/géneros: a pedido de la cátedra, se reemplazó el campo de texto separado por `" | "` por un array en formato JSON (parseable con `json.loads`), y se agregó una columna `id` tomada del identificador propio del sitio (`data-book`).
-
----
-
-# TP2 — Embeddings y búsqueda semántica
-
-Notebook: `src/TP2_Renna_Gomez_Ruiz_Esparza.ipynb`. Parte de `data/libros.csv` (salida del TP1) y sigue las partes del enunciado:
-
-| Parte | Qué hace | Estado |
-| --- | --- | --- |
-| Primer análisis del corpus | Géneros, estabilidad de TF-IDF según el tamaño del corpus, vocabulario promocional, idioma | Hecho |
-| A. Preparar el corpus | Dos versiones de cada sinopsis: cruda (para SBERT) y limpia (para TF-IDF) | Hecho |
-| B. Word2Vec propio vs pre-entrenado | Entrena Word2Vec sobre el corpus, lo compara con `SBW-vectors-300-min5` y arma un vector por documento promediando palabras | Hecho |
-| C. Modelo de oración | Embeddings con `distiluse-base-multilingual-cased-v1` y conteo de sinopsis truncadas | Hecho |
-| D. Comparación y visualización | Rankings lado a lado, distribución de similitudes entre pares, proyección 2D (PCA) por género | Hecho |
-| E. Persistencia | Tablas en Supabase con `pgvector`, carga de los vectores e índice HNSW | Hecho |
-| F. Búsqueda semántica | `buscar(consulta, k)` resuelta en SQL con filtro por género, y demostración del problema de recall con filtro | Hecho |
-| Evaluación | `queries.json`, precision@k contra TF-IDF y contra el azar | `queries.json` armado, en revisión (ver `docs/revision_queries.md`); falta precision@k |
-
-## Instrucciones para ejecutar el notebook
-
-**En local (VS Code o Jupyter).** Abrir el notebook, elegir el kernel `.venv-NLP` y ejecutar todas las celdas en orden. También se puede ejecutar completo desde la terminal:
+**En local (VS Code o Jupyter).** Abrir `src/TP2_Renna_Gomez_Ruiz_Esparza.ipynb`, elegir el kernel `.venv-NLP` y ejecutar todas las celdas en orden. También se puede ejecutar completo desde la terminal:
 
 ```powershell
 jupyter nbconvert --to notebook --execute --inplace src/TP2_Renna_Gomez_Ruiz_Esparza.ipynb
@@ -112,51 +48,50 @@ jupyter nbconvert --to notebook --execute --inplace src/TP2_Renna_Gomez_Ruiz_Esp
 **En Google Colab.**
 
 1. Subir el notebook a Colab (Archivo → Subir notebook).
-2. Abrir el panel *Secrets* (ícono de llave en la barra izquierda), crear el secreto `DATABASE_URL` con la cadena **Session pooler** de Supabase y activar "Acceso desde el notebook". Ver la sección de conexión más abajo.
-3. Ejecutar las celdas en orden. La primera instala lo que Colab no trae (`gensim`, `psycopg2-binary`, `python-dotenv`).
-4. Cuando las celdas lo pidan, subir `data/libros.csv` (al principio) y `queries.json` (en la Parte D). El repositorio es privado, no se pueden descargar por URL.
+2. Abrir el panel *Secrets* (ícono de llave en la barra izquierda), crear el secreto `DATABASE_URL` con la cadena de conexión y activar "Acceso desde el notebook".
+3. Ejecutar las celdas en orden. La primera instala lo que Colab no trae.
+4. Cuando las celdas lo pidan, subir `data/libros.csv` (al principio) y `queries.json` (en la Parte D).
 
-En Colab los archivos se pierden al cerrar la sesión: el modelo SBW se vuelve a descargar cada vez (unos minutos) y los archivos que genera el notebook quedan en `/content/data`.
+La primera ejecución descarga el modelo `SBW-vectors-300-min5` (1,1 GB, a la carpeta `models/`) y el modelo SBERT (unos 500 MB), y tarda varios minutos. El resultado es el mismo en cada ejecución: se usa una semilla fija.
 
-Qué pasa la primera vez que se ejecuta:
+### Conexión a la base de datos (Supabase)
 
-- Se descarga el modelo `SBW-vectors-300-min5.bin.gz` (1,1 GB) desde el sitio del SBWCE (`cs.famaf.unc.edu.ar/~ccardellino/SBWCE/`) a `models/`, y se guarda una copia en el formato de gensim (1,2 GB más) para que las siguientes cargas tarden segundos. La carpeta `models/` está en `.gitignore`.
-- Se descarga el modelo SBERT (unos 500 MB) a la caché de Hugging Face.
+Las partes E y F y la parte avanzada usan una base Postgres en Supabase. La cadena de conexión **no está en el repositorio**: se entrega por separado.
 
-El resultado es el mismo en cada ejecución: los muestreos y el entrenamiento de Word2Vec usan una semilla fija (`SEMILLA = 42`) y un solo hilo.
+- **En local:** copiar `.env.example` como `.env` en la raíz del repo y pegar ahí la cadena (`DATABASE_URL=...`). El archivo `.env` está en `.gitignore`.
+- **En Colab:** cargarla como secreto `DATABASE_URL` (paso 2 de arriba).
 
-## Conexión a Supabase (Parte E)
+Usar la cadena **Session pooler**, que funciona en cualquier red y en Colab. La de conexión directa (`db.<proyecto>.supabase.co`) solo funciona en redes con IPv6.
 
-La cadena de conexión **nunca** se escribe en el notebook. Se lee de afuera:
-
-- **En local:** copiar `.env.example` como `.env` en la raíz del repo y completar la contraseña. El archivo `.env` está en `.gitignore`.
-- **En Colab:** panel *Secrets* (ícono de llave) → crear el secreto `DATABASE_URL` y habilitar el acceso para el notebook.
-
-La cadena se copia del panel de Supabase, botón **Connect**. Hay dos:
-
-| Cadena | Host | Dónde funciona |
-| --- | --- | --- |
-| **Session pooler** (recomendada) | `aws-0-<región>.pooler.supabase.com` | En cualquier red y en Colab. |
-| Direct connection | `db.<proyecto>.supabase.co` | Solo en redes con IPv6. No funciona en Colab. |
-
-Si la conexión falla con un error de nombre de host, es que se está usando la conexión directa en una red sin IPv6: cambiar a la cadena del pooler.
-
-Sin credencial, el notebook se ejecuta igual: las celdas que usan la base avisan que se omiten.
-
-Los proyectos gratuitos de Supabase **se pausan a los 7 días sin actividad**. Si la conexión falla, entrar al panel y reactivar el proyecto (tarda cerca de medio minuto).
+Sin la cadena, el notebook se ejecuta igual: las celdas que usan la base avisan que se omiten y el resto corre completo. El notebook entregado ya tiene guardadas las salidas de esas celdas.
 
 ## Modelo de datos
 
+### `data/libros.csv` (salida del TP1)
+
+Una fila por libro, 150 filas.
+
+| Campo | Tipo | Descripción |
+| --- | --- | --- |
+| `id` | string | Identificador de la ficha en Lectulandia (atributo `data-book` del sitio). Si el sitio no lo trae, se genera un `fallback-<n>`. |
+| `titulo` | string | Título del libro. |
+| `autores` | array (JSON) | Autor o autores, ej. `["Isaac Asimov"]`. Se guarda como string JSON y se recupera con `json.loads`. |
+| `generos` | array (JSON) | Géneros que la ficha declara, ej. `["Ciencia ficción", "Novela"]`. Mismo formato que `autores`. |
+| `serie` | string | Serie a la que pertenece el libro; cadena vacía si no pertenece a ninguna. |
+| `sinopsis` | string | Texto completo de la sinopsis, sin saltos de línea ni espacios repetidos. |
+| `url_libro` | string | Dirección de la ficha del libro en Lectulandia. |
+| `categoria_origen` | string | Categoría por la que el libro ingresó al dataset (siempre "Ciencia ficción"). |
+| `fecha_extraccion` | string (fecha) | Fecha y hora en que se obtuvo el registro, formato `YYYY-MM-DD HH:MM:SS`. |
+| `url_portada` | string | Dirección de la imagen de portada. |
+
 ### `data/libros_preprocesados.csv`
 
-Las mismas 150 filas y columnas de `data/libros.csv` (ver el modelo de datos del TP1), más dos columnas:
+Las mismas filas y columnas de `libros.csv`, más dos:
 
 | Campo | Tipo | Descripción |
 | --- | --- | --- |
 | `sinopsis_emb` | string | Versión **cruda**: la sinopsis original, solo con los espacios normalizados. Es la entrada del modelo de oración (SBERT). |
-| `sinopsis_limpio` | string | Versión **limpia**: minúsculas, sin puntuación, sin números, sin stopwords (lista de español de NLTK) y sin palabras de una letra, con los tokens separados por un espacio. Es la entrada de TF-IDF. |
-
-`autores` y `generos` siguen guardados como array JSON, igual que en `libros.csv`.
+| `sinopsis_limpio` | string | Versión **limpia**: minúsculas, sin puntuación, sin números, sin stopwords (lista de español de NLTK) y sin palabras de una letra. Es la entrada de TF-IDF. |
 
 ### `data/libros_vectores.pkl`
 
@@ -165,52 +100,57 @@ DataFrame de pandas (se lee con `pd.read_pickle`) con las columnas anteriores y 
 | Campo | Tipo | Descripción |
 | --- | --- | --- |
 | `vec_propio` | array de 100 `float32` | Promedio de los vectores de palabra del Word2Vec entrenado sobre el corpus, con norma 1. |
-| `cob_propio` | float (0 a 1) | Cobertura: fracción de las palabras de la sinopsis (sin stopwords) que tienen vector en ese modelo. |
+| `cob_propio` | float (0 a 1) | Fracción de las palabras de la sinopsis (sin stopwords) que tienen vector en ese modelo. |
 | `vec_sbw` | array de 300 `float32` | Promedio de los vectores de palabra de `SBW-vectors-300-min5`, con norma 1. |
-| `cob_sbw` | float (0 a 1) | Cobertura con el vocabulario de SBW. |
+| `cob_sbw` | float (0 a 1) | Lo mismo que `cob_propio`, con el vocabulario de SBW. |
 | `n_tokens_sbert` | entero | Cantidad de tokens de la sinopsis según el tokenizador de SBERT. Si supera 128, el modelo la trunca. |
 | `vec_sbert` | array de 512 `float32` | Embedding de la sinopsis cruda con `distiluse-base-multilingual-cased-v1`, con norma 1. |
 
-Un vector vale `None` si no se pudo calcular (ninguna palabra con vector, norma cero o valores no finitos). En el corpus actual no hay ninguno.
+`data/emb_sbert.npy` es la misma información de `vec_sbert` como matriz de NumPy de 150 × 512, con las filas en el orden de `libros_preprocesados.csv`.
 
-### `data/emb_sbert.npy`
+### `data/chunks.pkl` y `data/emb_sbert_chunks.npy`
 
-Matriz de NumPy de 150 × 512 (`float32`) con los embeddings de SBERT. La fila *i* corresponde a la fila *i* de `libros_preprocesados.csv`.
+Parte avanzada del TP2. `chunks.pkl` es un DataFrame con una fila por fragmento de sinopsis (322 en total); `emb_sbert_chunks.npy` es la matriz de 322 × 512 con sus embeddings, en el mismo orden.
+
+| Campo | Tipo | Descripción |
+| --- | --- | --- |
+| `libro_id` | string | `id` del libro al que pertenece el fragmento. |
+| `titulo`, `generos` | string, lista | Copiados del libro. |
+| `chunk_idx` | entero | Número de fragmento dentro del libro, empezando en 0. |
+| `texto` | string | Oraciones consecutivas de la sinopsis que juntas no superan los 128 tokens de SBERT. |
+| `n_tokens` | entero | Tokens del fragmento según el tokenizador de SBERT. |
+| `vec` | array de 512 `float32` | Embedding del fragmento, con norma 1. |
 
 ### `queries.json`
 
-Conjunto de evaluación propio: 18 consultas en lenguaje natural y, para cada una, los libros del corpus que se consideran relevantes. Se armó leyendo las 150 sinopsis, **antes** de ejecutar ningún buscador, para que los resultados de los modelos no influyeran en qué se marca como relevante.
+Conjunto de evaluación del TP2: 18 consultas en lenguaje natural y, para cada una, los libros del corpus que se consideran relevantes.
 
 | Campo | Tipo | Descripción |
 | --- | --- | --- |
 | `id` | string | Identificador de la consulta (`q01` a `q18`). |
-| `consulta` | string | Texto de la consulta, como la escribiría un usuario. |
+| `consulta` | string | Texto de la consulta. |
 | `criterio` | string | Qué se consideró relevante para esa consulta y qué no. |
-| `sin_palabras_en_comun` | booleano | `true` en las consultas diseñadas para no compartir ninguna palabra con los libros relevantes (después de la limpieza de TF-IDF). Son `q17` y `q18`. |
+| `sin_palabras_en_comun` | booleano | `true` en las consultas diseñadas para no compartir ninguna palabra con sus libros relevantes (`q17` y `q18`). |
 | `relevantes` | array de objetos | Libros relevantes, cada uno con `id` (el mismo de `libros.csv`) y `titulo`. |
-
-`docs/revision_queries.md` muestra cada consulta con sus libros relevantes y el comienzo de sus sinopsis, y explica cómo revisar el conjunto antes de la evaluación.
 
 ### Tablas en Supabase (Postgres + `pgvector`)
 
-Una tabla por modelo, porque la dimensión del vector es parte del tipo de la columna y los espacios de dos modelos no son comparables entre sí. Las dos tablas tienen las mismas columnas (todas `NOT NULL`) y 150 filas; solo cambia la dimensión de `embedding`.
+Una tabla por modelo. `libros_word2vec` y `libros_sbert` tienen las mismas columnas y 150 filas; solo cambia la dimensión del vector.
 
 | Columna | Tipo | Descripción |
 | --- | --- | --- |
 | `id` | `text` (clave primaria) | Mismo `id` que en `libros.csv`. |
 | `titulo` | `text` | Título del libro. |
-| `generos` | `text[]` | Géneros del libro, como array para poder filtrar en SQL (`'Terror' = ANY(generos)`). |
-| `embedding` | `vector(300)` en `libros_word2vec`, `vector(512)` en `libros_sbert` | Promedio de vectores de palabra de SBW (`vec_sbw`) y embedding de SBERT (`vec_sbert`), respectivamente. |
+| `generos` | `text[]` | Géneros del libro, como array para poder filtrar en SQL. |
+| `embedding` | `vector(300)` en `libros_word2vec`, `vector(512)` en `libros_sbert` | Promedio de vectores de palabra de SBW y embedding de SBERT, respectivamente. |
 
-Cada tabla tiene un índice HNSW sobre `embedding` con la opclass `vector_cosine_ops`, que corresponde al operador de distancia de coseno (`<=>`) que usa la búsqueda: `libros_word2vec_embedding_hnsw` y `libros_sbert_embedding_hnsw`.
+`libros_sbert_chunks` guarda un vector por fragmento (322 filas):
 
-El notebook borra y vuelve a crear las tablas en cada ejecución, y antes de insertar descarta los vectores nulos, no finitos o de norma cero.
+| Columna | Tipo | Descripción |
+| --- | --- | --- |
+| `libro_id`, `chunk_idx` | `text`, `int` (clave primaria compuesta) | Libro y número de fragmento. |
+| `titulo`, `generos` | `text`, `text[]` | Copiados del libro. |
+| `texto` | `text` | Texto del fragmento. |
+| `embedding` | `vector(512)` | Embedding de SBERT del fragmento. |
 
-## Principales dificultades encontradas
-
-- **Conexión a Supabase solo por IPv6**: la cadena de conexión directa no resolvía en una red sin IPv6. Se documentó el uso del *Session pooler*, que es además el único que funciona en Colab.
-- **Corpus chico para entrenar embeddings**: 150 sinopsis suman unas 19.000 palabras y dos tercios del vocabulario aparece una sola vez. El Word2Vec propio solo cubre la mitad de las palabras de contenido de cada sinopsis.
-- **Truncado silencioso en SBERT**: el modelo acepta 128 tokens y tres de cada cuatro sinopsis los superan. El modelo no avisa; hubo que contarlo con su tokenizador.
-- **Preprocesamiento distinto por modelo**: la limpieza que sirve para TF-IDF perjudica a SBERT, y Word2Vec necesita una tercera tokenización que conserva las stopwords.
-- **Credenciales**: una primera versión del notebook tenía la cadena de conexión escrita en una celda. Se pasó a leerla de un archivo `.env` que no se sube al repositorio.
-- **Reproducibilidad entre máquinas**: rutas relativas a `src/`, modelos descargados a mano y dependencias sin declarar hacían que el notebook solo corriera en una computadora. Se resolvió detectando la raíz del proyecto, descargando SBW desde el notebook y completando `requirements.txt`.
+Las tres tablas tienen un índice HNSW sobre `embedding` con la opclass `vector_cosine_ops`. El notebook las borra y las vuelve a crear en cada ejecución.
