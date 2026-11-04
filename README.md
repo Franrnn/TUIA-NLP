@@ -10,6 +10,7 @@ Trabajos prácticos de la materia Procesamiento de Lenguaje Natural, Tecnicatura
 | --- | --- | --- |
 | **TP1** — Extracción de texto | Scraper que recorre la categoría *Ciencia ficción* de Lectulandia y arma un dataset de 150 libros con sus metadatos y su sinopsis. | `src/scraper.py`, `src/Libro.py`, `docs/diseno_extraccion.md`, `data/libros.csv` |
 | **TP2** — Embeddings y búsqueda semántica | Sobre las sinopsis del TP1: compara TF-IDF, Word2Vec (propio y pre-entrenado) y SBERT, guarda los vectores en Postgres con `pgvector`, busca por similitud y evalúa los modelos con un conjunto propio de consultas. | `src/TP2_Renna_Gomez_Ruiz_Esparza.ipynb`, `queries.json`, `docs/informe.pdf`, `data/` |
+| **TP3** — Recomendador personalizado | Sobre un catálogo ampliado de 8747 libros que la cátedra contaminó a propósito: primero lo audita (limpieza, expresiones regulares, detección de idioma, NER, clasificación de oraciones y similitud) y después aprende las preferencias de un lector para recomendarle libros. | `TP3/` |
 
 ## Instalación
 
@@ -21,10 +22,16 @@ python -m venv .venv-NLP
 pip install -r requirements.txt
 ```
 
-`requirements.txt` incluye las dependencias de los dos trabajos. Para volver a ejecutar el scraper del TP1 hace falta además el navegador de Playwright:
+`requirements.txt` incluye las dependencias de los tres trabajos. Para volver a ejecutar el scraper del TP1 hace falta además el navegador de Playwright:
 
 ```powershell
 playwright install chromium
+```
+
+El TP3 usa un modelo de spaCy en español, que no se instala con `requirements.txt`:
+
+```powershell
+python -m spacy download es_core_news_lg
 ```
 
 ## Ejecución
@@ -53,6 +60,22 @@ jupyter nbconvert --to notebook --execute --inplace src/TP2_Renna_Gomez_Ruiz_Esp
 4. Cuando las celdas lo pidan, subir `data/libros.csv` (al principio) y `queries.json` (en la Parte D).
 
 La primera ejecución descarga el modelo `SBW-vectors-300-min5` (1,1 GB, a la carpeta `models/`) y el modelo SBERT (unos 500 MB), y tarda varios minutos. El resultado es el mismo en cada ejecución: se usa una semilla fija.
+
+### TP3: notebook
+
+Abrir `TP3/TP3_Renna_Gomez_Ruiz_Esparza.ipynb`, elegir el kernel `.venv` y ejecutar las celdas en orden. También se puede ejecutar completo desde la terminal:
+
+```powershell
+jupyter nbconvert --to notebook --execute --inplace TP3/TP3_Renna_Gomez_Ruiz_Esparza.ipynb
+```
+
+Los archivos de entrada ya están en el repositorio: `TP3/catalogo_tp3.jsonl` (el catálogo de la cátedra, 8747 libros) y `TP3/consigna_tp3/tp3/muestra_etiquetada.csv` (500 libros con la etiqueta `contaminado`, que el Paso 2 usa para calibrar y medir los detectores).
+
+La primera ejecución descarga el modelo de oración del TP2 (`distiluse-base-multilingual-cased-v1`, unos 500 MB). El TP3 no usa la base de datos.
+
+**La carpeta `TP3/salidas/`** guarda resultados intermedios para no recalcularlos. Los dos detectores lentos del Paso 2 —el de idioma y el clasificador, que recorren unas 60.000 oraciones— dejan ahí su resultado: la primera ejecución tarda unos 45 minutos y las siguientes, unos pocos. Esos dos archivos están en el repositorio, así que quien clone no tiene que esperar esa primera vez. Si se cambia algo del Paso 1 y la cantidad de libros deja de coincidir, las celdas cortan con un error y hay que borrarlos.
+
+Todas las divisiones usan `random_state=42` y la semilla de `langdetect` queda fija, así que cada ejecución da el mismo resultado.
 
 ### Conexión a la base de datos (Supabase)
 
@@ -154,3 +177,25 @@ Una tabla por modelo. `libros_word2vec` y `libros_sbert` tienen las mismas colum
 | `embedding` | `vector(512)` | Embedding de SBERT del fragmento. |
 
 Las tres tablas tienen un índice HNSW sobre `embedding` con la opclass `vector_cosine_ops`. El notebook las borra y las vuelve a crear en cada ejecución.
+
+### Archivos del TP3
+
+Entradas que entrega la cátedra:
+
+| Archivo | Qué contiene |
+| --- | --- |
+| `TP3/catalogo_tp3.jsonl` | 8747 libros, uno por línea. Campos: `source_url`, `slug`, `title`, `authors`, `genres`, `seed_genre`, `series`, `series_number`, `cover_url`, `synopsis`, `synopsis_chars`, `scraped_at`. Algunos registros están contaminados y no se indica cuáles. |
+| `TP3/consigna_tp3/tp3/muestra_etiquetada.csv` | 500 libros del mismo catálogo con `contaminado` (1 o 0). En los contaminados, `fragmento` trae el texto que se insertó. El 20 % está contaminado, bastante más que el catálogo completo. |
+
+Salidas que genera el notebook:
+
+| Archivo | Qué contiene |
+| --- | --- |
+| `TP3/salidas/catalogo_paso1.csv` | Los 8592 libros que quedan después del Paso 1, con `slug`, `title`, `authors`, `genres`, `series` y `synopsis`. Se regenera en segundos, así que no se sube al repositorio. |
+| `TP3/sospechosos.csv` | Los 380 libros que la auditoría marca, con `slug` y `motivo`. El motivo combina con `+` los detectores que lo marcaron: `regex`, `normalizacion`, `idioma`, `clasificador`, `casi_duplicado`. |
+| `TP3/catalogo_limpio.csv` | Los 8212 libros que quedan al sacar los sospechosos. **Es la entrada de los pasos 3 a 8**, y conviene no regenerarlo: el Paso 3 lo mezcla con `random_state=42` y el lector valora los libros en ese orden. |
+| `TP3/salidas/deteccion_idioma_catalogo.csv` | Cache del detector de idioma: `slug` y `marcado`. |
+| `TP3/salidas/deteccion_clasificador_catalogo.csv` | Cache del clasificador: `slug` y la `probabilidad` más alta entre las oraciones de cada sinopsis. |
+| `TP3/grupo11_sospechosos.csv` | Copia de `sospechosos.csv` con el nombre que pide la entrega. |
+
+Los dos archivos de cache se leen por posición, así que las celdas comprueban que los `slug` coincidan con el catálogo antes de usarlos.

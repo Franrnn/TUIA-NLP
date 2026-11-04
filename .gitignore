@@ -43,3 +43,13 @@ resultados/
 # Windows
 Thumbs.db
 desktop.ini
+
+# El material de la catedra se sube (el notebook necesita muestra_etiquetada.csv),
+# menos esta copia del catalogo, que ya esta en TP3/catalogo_tp3.jsonl.
+TP3/consigna_tp3/tp3/catalogo_tp3.jsonl
+
+# Salidas intermedias del TP3.
+# Solo se ignora el catalogo del Paso 1, que pesa 9 MB y se regenera en segundos.
+# Los caches de los detectores lentos (idioma y clasificador) SI se suben: pesan
+# pocos KB y le ahorran ~25 minutos de computo a quien reejecute el notebook.
+TP3/salidas/catalogo_paso1.csv
