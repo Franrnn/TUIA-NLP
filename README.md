@@ -77,6 +77,28 @@ La primera ejecución descarga el modelo de oración del TP2 (`distiluse-base-mu
 
 Todas las divisiones usan `random_state=42` y la semilla de `langdetect` queda fija, así que cada ejecución da el mismo resultado.
 
+### TP3: valorar los libros (Paso 3)
+
+El Paso 3 necesita que **una sola persona del grupo** valore los libros a mano. Eso no se hace en el notebook sino con un script aparte, porque lleva alrededor de una hora y conviene poder cortar y retomar:
+
+```powershell
+.\.venv\Scripts\python.exe TP3\valorar.py
+```
+
+Muestra un libro por pantalla, con su título y su sinopsis, y se responde con una tecla:
+
+| Tecla | Significado |
+| --- | --- |
+| `1` | me interesaría leerlo |
+| `0` | no me interesaría leerlo |
+| `Enter` | no me decido; el libro queda sin valorar |
+| `s` | es spam que el Paso 2 no detectó |
+| `q` | salir y seguir más tarde |
+
+Recorre el catálogo limpio en el mismo orden que el notebook (`sample(frac=1, random_state=42)`) y **guarda cada respuesta en el momento** en `TP3/salidas/valoraciones_log.csv`, así que se puede cortar en cualquier momento y al volver a abrirlo sigue donde había quedado. Arriba muestra cuántas respuestas faltan para llegar a las 100 válidas y a las 20 de cada clase que pide la consigna.
+
+Cuando el objetivo esté cumplido, hay que volver a ejecutar el Paso 3 del notebook: de ahí sale `TP3/preferencias.csv`.
+
 ### Conexión a la base de datos (Supabase)
 
 Las partes E y F y la parte avanzada usan una base Postgres en Supabase. La cadena de conexión **no está en el repositorio**: se entrega por separado.
@@ -196,6 +218,8 @@ Salidas que genera el notebook:
 | `TP3/catalogo_limpio.csv` | Los 8212 libros que quedan al sacar los sospechosos. **Es la entrada de los pasos 3 a 8**, y conviene no regenerarlo: el Paso 3 lo mezcla con `random_state=42` y el lector valora los libros en ese orden. |
 | `TP3/salidas/deteccion_idioma_catalogo.csv` | Cache del detector de idioma: `slug` y `marcado`. |
 | `TP3/salidas/deteccion_clasificador_catalogo.csv` | Cache del clasificador: `slug` y la `probabilidad` más alta entre las oraciones de cada sinopsis. |
+| `TP3/salidas/valoraciones_log.csv` | Lo que respondió el lector en `valorar.py`, una fila por libro visto: `orden` (posición en el recorrido), `slug`, `respuesta` (`1`, `0`, vacío o `s`) y `momento`. Se escribe de a una fila, para poder cortar y retomar. |
+| `TP3/preferencias.csv` | Un libro por fila con `slug`, `title`, `synopsis` e `interes` (1, 0 o vacío). El Paso 4 le agrega la columna `conjunto`. Las abstenciones se conservan: un libro sin valorar tiene preferencia desconocida, no es un 0. |
 | `TP3/grupo11_sospechosos.csv` | Copia de `sospechosos.csv` con el nombre que pide la entrega. |
 
 Los dos archivos de cache se leen por posición, así que las celdas comprueban que los `slug` coincidan con el catálogo antes de usarlos.
