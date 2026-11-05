@@ -1,4 +1,4 @@
-# TUIA — Procesamiento de Lenguaje Natural
+﻿# TUIA — Procesamiento de Lenguaje Natural
 
 Trabajos prácticos de la materia Procesamiento de Lenguaje Natural, Tecnicatura Universitaria en Inteligencia Artificial (UNR).
 
@@ -10,7 +10,7 @@ Trabajos prácticos de la materia Procesamiento de Lenguaje Natural, Tecnicatura
 | --- | --- | --- |
 | **TP1** — Extracción de texto | Scraper que recorre la categoría *Ciencia ficción* de Lectulandia y arma un dataset de 150 libros con sus metadatos y su sinopsis. | `src/scraper.py`, `src/Libro.py`, `docs/diseno_extraccion.md`, `data/libros.csv` |
 | **TP2** — Embeddings y búsqueda semántica | Sobre las sinopsis del TP1: compara TF-IDF, Word2Vec (propio y pre-entrenado) y SBERT, guarda los vectores en Postgres con `pgvector`, busca por similitud y evalúa los modelos con un conjunto propio de consultas. | `src/TP2_Renna_Gomez_Ruiz_Esparza.ipynb`, `queries.json`, `docs/informe.pdf`, `data/` |
-| **TP3** — Recomendador personalizado | Sobre un catálogo ampliado de 8747 libros que la cátedra contaminó a propósito: primero lo audita (limpieza, expresiones regulares, detección de idioma, NER, clasificación de oraciones y similitud) y después aprende las preferencias de un lector para recomendarle libros. | `TP3/` |
+| **TP3** — Recomendador personalizado | Sobre un catálogo ampliado de 8747 libros que la cátedra contaminó a propósito: primero lo audita (limpieza, expresiones regulares, detección de idioma, NER, clasificación de oraciones y similitud) y después aprende las preferencias de un lector para recomendarle libros. | `TP3/TP3_grupo11.ipynb`, `TP3/informe.pdf`, `TP3/grupo11_sospechosos.csv`, `TP3/grupo11_preferencias.csv` |
 
 ## Instalación
 
@@ -61,28 +61,71 @@ jupyter nbconvert --to notebook --execute --inplace src/TP2_Renna_Gomez_Ruiz_Esp
 
 La primera ejecución descarga el modelo `SBW-vectors-300-min5` (1,1 GB, a la carpeta `models/`) y el modelo SBERT (unos 500 MB), y tarda varios minutos. El resultado es el mismo en cada ejecución: se usa una semilla fija.
 
+#### TP2: conexión a la base de datos (Supabase)
+
+Las partes E y F y la parte avanzada del TP2 usan una base Postgres en Supabase. La cadena de conexión **no está en el repositorio**: se entrega por separado.
+
+- **En local:** copiar `.env.example` como `.env` en la raíz del repo y pegar ahí la cadena (`DATABASE_URL=...`). El archivo `.env` está en `.gitignore`.
+- **En Colab:** cargarla como secreto `DATABASE_URL` (paso 2 de arriba).
+
+Usar la cadena **Session pooler**, que funciona en cualquier red y en Colab. La de conexión directa (`db.<proyecto>.supabase.co`) solo funciona en redes con IPv6.
+
+Sin la cadena, el notebook se ejecuta igual: las celdas que usan la base avisan que se omiten y el resto corre completo. El notebook entregado ya tiene guardadas las salidas de esas celdas.
+
 ### TP3: notebook
 
-Abrir `TP3/TP3_Renna_Gomez_Ruiz_Esparza.ipynb`, elegir el kernel `.venv` y ejecutar las celdas en orden. También se puede ejecutar completo desde la terminal:
+Abrir `TP3/TP3_grupo11.ipynb`, elegir el kernel `.venv-NLP` y ejecutar las celdas en orden. También se puede ejecutar completo desde la terminal:
 
 ```powershell
-jupyter nbconvert --to notebook --execute --inplace TP3/TP3_Renna_Gomez_Ruiz_Esparza.ipynb
+jupyter nbconvert --to notebook --execute --inplace TP3/TP3_grupo11.ipynb
 ```
 
 Los archivos de entrada ya están en el repositorio: `TP3/catalogo_tp3.jsonl` (el catálogo de la cátedra, 8747 libros) y `TP3/consigna_tp3/tp3/muestra_etiquetada.csv` (500 libros con la etiqueta `contaminado`, que el Paso 2 usa para calibrar y medir los detectores).
 
 La primera ejecución descarga el modelo de oración del TP2 (`distiluse-base-multilingual-cased-v1`, unos 500 MB). El TP3 no usa la base de datos.
 
-**La carpeta `TP3/salidas/`** guarda resultados intermedios para no recalcularlos. Los dos detectores lentos del Paso 2 —el de idioma y el clasificador, que recorren unas 60.000 oraciones— dejan ahí su resultado: la primera ejecución tarda unos 45 minutos y las siguientes, unos pocos. Esos dos archivos están en el repositorio, así que quien clone no tiene que esperar esa primera vez. Si se cambia algo del Paso 1 y la cantidad de libros deja de coincidir, las celdas cortan con un error y hay que borrarlos.
+**La carpeta `TP3/salidas/`** guarda resultados intermedios para no recalcularlos. Los dos detectores lentos del Paso 2 (el de idioma y el clasificador, que recorren unas 60.000 oraciones) dejan ahí su resultado: la primera ejecución tarda unos 45 minutos y las siguientes, unos pocos. Esos archivos están en el repositorio, así que quien clone no tiene que esperar esa primera vez. Si se cambia algo del Paso 1 y la cantidad de libros deja de coincidir, las celdas cortan con un error y hay que borrarlos.
 
 Todas las divisiones usan `random_state=42` y la semilla de `langdetect` queda fija, así que cada ejecución da el mismo resultado.
+
+#### TP3 en Google Colab
+
+El notebook busca sus archivos con rutas relativas a su carpeta, así que en Colab hay que subir la carpeta `TP3` completa, con `salidas/` incluida para no esperar los 45 minutos de los detectores.
+
+1. En la PC, desde la carpeta `TUIA-NLP`, comprimir la carpeta (queda un zip de unos 40 MB):
+
+   ```powershell
+   Compress-Archive -Path TP3\* -DestinationPath TP3.zip -Force
+   ```
+
+2. En Colab, abrir el notebook: Archivo → Subir notebook → `TP3/TP3_grupo11.ipynb`. Alcanza con el entorno de CPU.
+3. Subir `TP3.zip` desde el panel de archivos (ícono de carpeta en la barra izquierda).
+4. Insertar una celda de código al principio del notebook y ejecutarla. Descomprime el zip, se para en la carpeta del TP3 e instala lo que Colab no trae (spaCy, scikit-learn y sentence-transformers ya vienen instalados):
+
+   ```python
+   # Descomprime TP3.zip, busca la carpeta donde quedó el catálogo y se para en ella
+   import glob, os
+   !unzip -q -o /content/TP3.zip -d /content/TP3
+   carpeta = os.path.dirname(glob.glob("/content/TP3/**/catalogo_tp3.jsonl", recursive=True)[0])
+   %cd {carpeta}
+   !pip install -q thefuzz==0.22.1 python-Levenshtein langdetect==1.0.9
+   !python -m spacy download es_core_news_lg
+   ```
+
+   Al terminar, spaCy siempre avisa "Restart to reload dependencies". No hace falta reiniciar, salvo que la celda que carga spaCy (Paso 2.4) diga `Can't find model 'es_core_news_lg'`: en ese caso, reiniciar la sesión y ejecutar todo de nuevo.
+
+5. Entorno de ejecución → Ejecutar todas. La primera vez descarga además el modelo de oración (unos 500 MB). Las celdas de los detectores del Paso 2 y la de embeddings del Paso 8 tienen que decir que leyeron su resultado de `salidas/`.
+
+Para comprobar que corrió bien: el Paso 2 marca 380 sospechosos y deja 8212 libros limpios, el Paso 4 imprime `80 20` y la celda de código del Paso 7 da precision@5 de 0,4, 0,6 y 0,4 (azar 0,30). Por diferencias de redondeo, el clasificador del Paso 2 puede marcar uno o dos libros más o menos, pero los sospechosos tienen que seguir siendo 380.
+
+Los archivos que genera el notebook en Colab se borran al cerrar la sesión. El notebook descargado de Colab no reemplaza al del repositorio, porque incluye la celda de preparación.
 
 ### TP3: valorar los libros (Paso 3)
 
 El Paso 3 necesita que **una sola persona del grupo** valore los libros a mano. Eso no se hace en el notebook sino con un script aparte, porque lleva alrededor de una hora y conviene poder cortar y retomar:
 
 ```powershell
-.\.venv\Scripts\python.exe TP3\valorar.py
+.\.venv-NLP\Scripts\python.exe TP3\valorar.py
 ```
 
 Muestra un libro por pantalla, con su título y su sinopsis, y se responde con una tecla:
@@ -98,17 +141,6 @@ Muestra un libro por pantalla, con su título y su sinopsis, y se responde con u
 Recorre el catálogo limpio en el mismo orden que el notebook (`sample(frac=1, random_state=42)`) y **guarda cada respuesta en el momento** en `TP3/salidas/valoraciones_log.csv`, así que se puede cortar en cualquier momento y al volver a abrirlo sigue donde había quedado. Arriba muestra cuántas respuestas faltan para llegar a las 100 válidas y a las 20 de cada clase que pide la consigna.
 
 Cuando el objetivo esté cumplido, hay que volver a ejecutar el Paso 3 del notebook: de ahí sale `TP3/preferencias.csv`.
-
-### Conexión a la base de datos (Supabase)
-
-Las partes E y F y la parte avanzada usan una base Postgres en Supabase. La cadena de conexión **no está en el repositorio**: se entrega por separado.
-
-- **En local:** copiar `.env.example` como `.env` en la raíz del repo y pegar ahí la cadena (`DATABASE_URL=...`). El archivo `.env` está en `.gitignore`.
-- **En Colab:** cargarla como secreto `DATABASE_URL` (paso 2 de arriba).
-
-Usar la cadena **Session pooler**, que funciona en cualquier red y en Colab. La de conexión directa (`db.<proyecto>.supabase.co`) solo funciona en redes con IPv6.
-
-Sin la cadena, el notebook se ejecuta igual: las celdas que usan la base avisan que se omiten y el resto corre completo. El notebook entregado ya tiene guardadas las salidas de esas celdas.
 
 ## Modelo de datos
 
@@ -224,4 +256,4 @@ Salidas que genera el notebook:
 | `TP3/grupo11_preferencias.csv` | Copia de `preferencias.csv` con la columna `conjunto` (`entrenamiento` o `prueba`; vacía en las abstenciones), con el nombre que pide la entrega. |
 | `TP3/salidas/embeddings_candidatos.npy` | Cache del Paso 8: embeddings (8112 × 512) de los libros del catálogo limpio que el lector no valoró. `embeddings_candidatos_slugs.csv` guarda sus `slug` en el mismo orden; si no coinciden con los candidatos, la celda los recalcula (unos 4 minutos). |
 
-Los dos archivos de cache se leen por posición, así que las celdas comprueban que los `slug` coincidan con el catálogo antes de usarlos.
+Las celdas que leen un cache comprueban antes que sus `slug` coincidan con los libros actuales; si no coinciden, cortan con un error (idioma y clasificador) o lo recalculan (embeddings del Paso 8).

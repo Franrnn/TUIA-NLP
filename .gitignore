@@ -53,3 +53,6 @@ TP3/consigna_tp3/tp3/catalogo_tp3.jsonl
 # Los caches de los detectores lentos (idioma y clasificador) SI se suben: pesan
 # pocos KB y le ahorran ~25 minutos de computo a quien reejecute el notebook.
 TP3/salidas/catalogo_paso1.csv
+
+# Zip para subir el TP3 a Colab (ver README)
+TP3.zip
