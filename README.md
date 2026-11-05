@@ -221,5 +221,7 @@ Salidas que genera el notebook:
 | `TP3/salidas/valoraciones_log.csv` | Lo que respondió el lector en `valorar.py`, una fila por libro visto: `orden` (posición en el recorrido), `slug`, `respuesta` (`1`, `0`, vacío o `s`) y `momento`. Se escribe de a una fila, para poder cortar y retomar. |
 | `TP3/preferencias.csv` | Un libro por fila con `slug`, `title`, `synopsis` e `interes` (1, 0 o vacío). El Paso 4 le agrega la columna `conjunto`. Las abstenciones se conservan: un libro sin valorar tiene preferencia desconocida, no es un 0. |
 | `TP3/grupo11_sospechosos.csv` | Copia de `sospechosos.csv` con el nombre que pide la entrega. |
+| `TP3/grupo11_preferencias.csv` | Copia de `preferencias.csv` con la columna `conjunto` (`entrenamiento` o `prueba`; vacía en las abstenciones), con el nombre que pide la entrega. |
+| `TP3/salidas/embeddings_candidatos.npy` | Cache del Paso 8: embeddings (8112 × 512) de los libros del catálogo limpio que el lector no valoró. `embeddings_candidatos_slugs.csv` guarda sus `slug` en el mismo orden; si no coinciden con los candidatos, la celda los recalcula (unos 4 minutos). |
 
 Los dos archivos de cache se leen por posición, así que las celdas comprueban que los `slug` coincidan con el catálogo antes de usarlos.
